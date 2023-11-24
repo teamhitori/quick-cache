@@ -1,4 +1,4 @@
-**Quick Cache** - The blazing-fast, thread-safe in-memory cache for .NET applications.
+# **Quick Cache** - The blazing-fast 🚀, thread-safe in-memory cache for .NET applications.
 
 ## Purpose
 Quick Cache is designed to provide .NET developers with an efficient, easy-to-use in-memory caching solution. Perfect for applications handling large data sets or requiring rapid data retrieval, Quick Cache ensures thread safety and high performance.
