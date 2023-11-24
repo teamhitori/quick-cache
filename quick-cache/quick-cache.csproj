@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>quick_cache</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<PackageId>TeamHitori.QuickCache</PackageId>
+		<Version>0.0.0.0</Version>
+		<Authors>ReubenH</Authors>
+		<Company>Team Hitori</Company>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AssemblyName>TeamHitori.QuickCache</AssemblyName>
+		<RepositoryUrl>https://github.com/teamhitori/quick-cache</RepositoryUrl>
+		<Description>Quick Cache - The blazing-fast 🚀, thread-safe in-memory cache for .NET applications.</Description>
+	</PropertyGroup>
+</Project>
