@@ -29,7 +29,7 @@ jobs:
       run: echo "1.0.0.${{ github.run_number }}"
 
     - name: Build
-      run: dotnet build /p:AssemblyVersion=1.0.0.${{ github.run_number }} /property:Version=1.0.0.${{ github.run_number }} --no-restore --configuration Release
+      run: dotnet build /p:AssemblyVersion=1.0.0.${{ github.run_number }} /property:Version=0.0.0.${{ github.run_number }} --no-restore --configuration Release
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
