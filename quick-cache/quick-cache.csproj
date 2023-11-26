@@ -17,4 +17,8 @@
 		<RepositoryUrl>https://github.com/teamhitori/quick-cache</RepositoryUrl>
 		<Description>Quick Cache - The blazing-fast 🚀, thread-safe in-memory cache for .NET applications.</Description>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="System.Reactive" Version="6.0.1-preview.1" />
+	</ItemGroup>
 </Project>

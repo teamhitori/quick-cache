@@ -4,36 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeamHitori.QuickCache
+internal class LogPosition
 {
-    internal class LogPosition
+    private ulong _position;
+
+    public LogPosition(ulong seed = 0)
     {
-        private ulong _position;
+        _position = seed;
+    }
 
-        public LogPosition(ulong seed = 0)
+    public ulong Position
+    {
+        get
         {
-            _position = seed;
+            return _position;
         }
+    }
 
-        public ulong Position
-        {
-            get
-            {
-                return _position;
-            }
-        }
+    public ulong? GetNewPosition()
+    {
+        var value = Interlocked.Increment(ref _position);
 
-        public ulong? GetNewPosition()
-        {
-            var value =  Interlocked.Increment(ref _position);
+        return value == 0 ? null : value;
 
-            return value == 0 ? null : value;
-            
-        }
+    }
 
-        public void Reset()
-        {
-            Interlocked.Exchange(ref _position, 0);
-        }
+    public void Reset()
+    {
+        Interlocked.Exchange(ref _position, 0);
     }
 }
