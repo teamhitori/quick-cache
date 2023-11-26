@@ -48,7 +48,7 @@ namespace TeamHitori.QuickCacheTest
         }
 
         [TestMethod]
-        public void GetLogPosition_ShouldBeThreadSafeForConcurrentAccess()
+        public async Task GetLogPosition_ShouldBeThreadSafeForConcurrentAccess()
         {
             var logHash = new LogHash();
             string key = "testKey";
@@ -61,7 +61,7 @@ namespace TeamHitori.QuickCacheTest
                 tasks.Add(Task.Run(() => logHash.GetLogPosition(key)));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
 
             foreach (var task in tasks)
             {

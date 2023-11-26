@@ -39,16 +39,16 @@ namespace TeamHitori.QuickCacheTest
                 .Select((x, i) => (x, i))
                 .Subscribe(e => Assert.AreEqual($"Key:{e.i}", $"{e.x.Key}"));
 
-            eventQueue.RaiseEvent(firstEvent, "Key:1");
-            eventQueue.RaiseEvent(secondEvent, "Key:2");
-            eventQueue.RaiseEvent(firstEvent, "Key:3");
-            eventQueue.RaiseEvent(secondEvent, "Key:4");
+            eventQueue.RaiseEvent(firstEvent, "Key:0");
+            eventQueue.RaiseEvent(secondEvent, "Key:1");
+            eventQueue.RaiseEvent(firstEvent, "Key:2");
+            eventQueue.RaiseEvent(secondEvent, "Key:3");
 
             Thread.Sleep(100);
         }
 
         [TestMethod]
-        public void RaiseEvent_ShouldBeThreadSafeForConcurrentCalls()
+        public async Task RaiseEvent_ShouldBeThreadSafeForConcurrentCalls()
         {
             var eventQueue = new EventQueue();
             var tasks = new List<Task>();
@@ -62,7 +62,7 @@ namespace TeamHitori.QuickCacheTest
                 tasks.Add(Task.Run(() => eventQueue.RaiseEvent(EventType.Add, $"key:{i}")));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
 
             Thread.Sleep(100);
 

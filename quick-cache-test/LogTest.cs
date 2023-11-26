@@ -46,7 +46,7 @@ namespace TeamHitori.QuickCacheTest
         }
 
         [TestMethod]
-        public void AddValue_ShouldBeThreadSafeForConcurrentAdditions()
+        public async Task AddValue_ShouldBeThreadSafeForConcurrentAdditions()
         {
             // Arrange
             var log = new Log();
@@ -60,9 +60,9 @@ namespace TeamHitori.QuickCacheTest
                 tasks.Add(Task.Run(() => log.AddValue(logPosition.GetNewPosition()!.Value, value)));
             }
 
-            var values = log.GetAllPositions();
+            await Task.WhenAll(tasks.ToArray());
 
-            Task.WaitAll(tasks.ToArray());
+            var values = log.GetAllPositions();
 
             // Assert
             Assert.AreEqual(1000, values.Distinct().Count());
@@ -83,7 +83,7 @@ namespace TeamHitori.QuickCacheTest
         }
 
         [TestMethod]
-        public void GetValue_ShouldBeThreadSafeForConcurrentReads()
+        public async Task GetValue_ShouldBeThreadSafeForConcurrentReads()
         {
             // Arrange
             var log = new Log();
@@ -99,7 +99,7 @@ namespace TeamHitori.QuickCacheTest
                 tasks.Add(Task.Run(() => log.GetValue<int>(position.Value)!.Value));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
 
             // Assert
             foreach (var task in tasks)
@@ -209,7 +209,7 @@ namespace TeamHitori.QuickCacheTest
         }
 
         [TestMethod]
-        public void RemoveValue_ShouldBeThreadSafeForConcurrentRemovals()
+        public async Task RemoveValue_ShouldBeThreadSafeForConcurrentRemovals()
         {
             // Arrange
             var log = new Log();
@@ -222,7 +222,7 @@ namespace TeamHitori.QuickCacheTest
                 var position = logPosition.GetNewPosition()!.Value;
                 tasks.Add(Task.Run(() => log.AddValue(position, i)));
             }
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             ;
             
             var positions = log.GetAllPositions();
@@ -232,7 +232,7 @@ namespace TeamHitori.QuickCacheTest
                 tasks.Add(Task.Run(() => log.RemoveValue(position)));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
 
             // Assert
             Assert.AreEqual(0, log.GetAllPositions().Count());
