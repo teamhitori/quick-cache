@@ -7,11 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("quick-cache-test")]
-internal class Log
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+internal class Log : ILog
 {
     ConcurrentDictionary<ulong, ValueType> cache = new ConcurrentDictionary<ulong, System.ValueType>();
 
-    public void AddValue<T>(ulong logPosition, T value) where T: struct 
+    public void AddValue<T>(ulong logPosition, T value) where T : struct
     {
         if (cache.ContainsKey(logPosition))
             throw new InvalidOperationException("Log position already exists");

@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class EventQueue: IDisposable
+internal class EventQueue : IDisposable, IEventQueue
 {
     private ConcurrentBag<IObserver<Event>> _observers = new ConcurrentBag<IObserver<Event>>();
 

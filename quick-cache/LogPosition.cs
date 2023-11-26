@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class LogPosition
+internal class LogPosition : ILogPosition
 {
     private ulong _position;
 
@@ -13,20 +13,11 @@ internal class LogPosition
         _position = seed;
     }
 
-    public ulong Position
-    {
-        get
-        {
-            return _position;
-        }
-    }
-
     public ulong? GetNewPosition()
     {
         var value = Interlocked.Increment(ref _position);
 
         return value == 0 ? null : value;
-
     }
 
     public void Reset()

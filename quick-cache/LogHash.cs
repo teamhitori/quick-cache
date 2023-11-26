@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TeamHitori.QuickCache.Interfaces;
 
 namespace TeamHitori.QuickCache
 {
-    internal class LogHash
+    internal class LogHash : ILogHash
     {
         ConcurrentDictionary<string, ulong> _hash = new ConcurrentDictionary<string, ulong>();
 
