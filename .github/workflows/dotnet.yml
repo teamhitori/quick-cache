@@ -32,7 +32,7 @@ jobs:
       run: dotnet build /p:AssemblyVersion=1.0.0.${{ github.run_number }} /property:Version=0.0.0.${{ github.run_number }} --no-restore --configuration Release
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
 
     - name: Push Nuget
       run: dotnet nuget push "quick-cache/bin/Release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
