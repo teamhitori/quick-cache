@@ -1,10 +1,10 @@
-﻿namespace quick_cache
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("quick-cache-test")]
+internal class QuickCache()
 {
-    public class QuickCache()
+    public string Get()
     {
-        string Get()
-        {
-            return "Hello World";
-        }
+        return "Hello World";
     }
 }
