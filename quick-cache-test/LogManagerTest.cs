@@ -9,7 +9,8 @@ public class LogManagerTest
         var eventQueue = new EventQueue();
         var log = new Log();
         var logHash = new LogHash(eventQueue);
-        var logManager = new LogManager(eventQueue, log, logHash, threshold);
+        var logManager = new LogManager(eventQueue, log, logHash);
+        logManager.LogThreshHold = threshold;
         // Trigger a NewItem event
 
         log.AddValue(1, 1234);

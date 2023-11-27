@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Moq;
 
 [TestClass]
@@ -11,7 +12,18 @@ public class QuickCacheTest
         var mockLog = new Mock<ILog>();
         var mockLogHash = new Mock<ILogHash>();
         var mockEventQueue = new Mock<IEventQueue>();
-        var quickCache = new QuickCache(mockLog.Object, mockLogPosition.Object, mockLogHash.Object, mockEventQueue.Object);
+        var mockLogManager = new Mock<ILogManager>();
+        var inMemorySettings = new Dictionary<string, string?> {};
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+        var quickCache = new QuickCache(
+            mockLog.Object, 
+            mockLogPosition.Object, 
+            mockLogHash.Object, 
+            mockEventQueue.Object, 
+            mockLogManager.Object,
+            configuration);
         string key = "testKey";
         var value = 1234;
 
@@ -32,7 +44,18 @@ public class QuickCacheTest
         var mockLog = new Mock<ILog>();
         var mockLogHash = new Mock<ILogHash>();
         var mockEventQueue = new Mock<IEventQueue>();
-        var quickCache = new QuickCache(mockLog.Object, mockLogPosition.Object, mockLogHash.Object, mockEventQueue.Object);
+        var mockLogManager = new Mock<ILogManager>();
+        var inMemorySettings = new Dictionary<string, string?> { };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+        var quickCache = new QuickCache(
+            mockLog.Object,
+            mockLogPosition.Object,
+            mockLogHash.Object,
+            mockEventQueue.Object,
+            mockLogManager.Object,
+            configuration);
         string key = "testKey";
         var value1 = 1234;
         var value2 = 5678;
@@ -61,7 +84,18 @@ public class QuickCacheTest
         var mockLog = new Mock<ILog>();
         var mockLogHash = new Mock<ILogHash>();
         var mockEventQueue = new Mock<IEventQueue>();
-        var quickCache = new QuickCache(mockLog.Object, mockLogPosition.Object, mockLogHash.Object, mockEventQueue.Object);
+        var mockLogManager = new Mock<ILogManager>();
+        var inMemorySettings = new Dictionary<string, string?> { };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+        var quickCache = new QuickCache(
+            mockLog.Object,
+            mockLogPosition.Object,
+            mockLogHash.Object,
+            mockEventQueue.Object,
+            mockLogManager.Object,
+            configuration);
         string key = "newKey";
         var value = 1234;
 
@@ -80,7 +114,18 @@ public class QuickCacheTest
         var mockLog = new Mock<ILog>();
         var mockLogHash = new Mock<ILogHash>();
         var mockEventQueue = new Mock<IEventQueue>();
-        var quickCache = new QuickCache(mockLog.Object, mockLogPosition.Object, mockLogHash.Object, mockEventQueue.Object);
+        var mockLogManager = new Mock<ILogManager>();
+        var inMemorySettings = new Dictionary<string, string?> { };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+        var quickCache = new QuickCache(
+            mockLog.Object,
+            mockLogPosition.Object,
+            mockLogHash.Object,
+            mockEventQueue.Object,
+            mockLogManager.Object,
+            configuration);
         string key = "testKey";
         var value = 1234;
         ulong expectedPosition = 123;
@@ -101,7 +146,18 @@ public class QuickCacheTest
         var mockLog = new Mock<ILog>();
         var mockLogHash = new Mock<ILogHash>();
         var mockEventQueue = new Mock<IEventQueue>();
-        var quickCache = new QuickCache(mockLog.Object, mockLogPosition.Object, mockLogHash.Object, mockEventQueue.Object);
+        var mockLogManager = new Mock<ILogManager>();
+        var inMemorySettings = new Dictionary<string, string?> { };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+        var quickCache = new QuickCache(
+            mockLog.Object,
+            mockLogPosition.Object,
+            mockLogHash.Object,
+            mockEventQueue.Object,
+            mockLogManager.Object,
+            configuration);
 
         mockLogPosition.Setup(logPos => logPos.GetNewPosition()).Returns(1);
 
@@ -117,6 +173,37 @@ public class QuickCacheTest
 
         // Assert
         Mock.Get(mockLogHash.Object).Verify(logHash => logHash.Set(It.IsAny<string>(), 1), Times.Exactly(1000));
+    }
+
+    [TestMethod]
+    public void GetConfigurationValue_KeySet_CallsLogManagerWithValue()
+    {
+        // Arrange
+        var mockLogPosition = new Mock<ILogPosition>();
+        var mockLog = new Mock<ILog>();
+        var mockLogHash = new Mock<ILogHash>();
+        var mockEventQueue = new Mock<IEventQueue>();
+        var mockLogManager = new Mock<ILogManager>();
+        mockLogManager.SetupSet(logManager => logManager.LogThreshHold = It.IsAny<int>()).Verifiable();
+        var inMemorySettings = new Dictionary<string, string?> {
+            {"quick-cache:log-threshold", "5898"}
+        };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        // Act
+        var quickCache = new QuickCache(
+            mockLog.Object,
+            mockLogPosition.Object,
+            mockLogHash.Object,
+            mockEventQueue.Object,
+            mockLogManager.Object,
+            configuration);
+
+        // Assert
+        mockLogManager.VerifySet(logManager => logManager.LogThreshHold = 5898);
+
     }
 
 

@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using Microsoft.Extensions.Configuration;
+using System.Reactive.Linq;
 
 /// <summary>
 /// Represents an object cache that stores values associated with unique keys. in a thread-safe manner.
@@ -17,6 +18,8 @@ public class QuickCache : ICache
     private readonly ILogPosition _logPosition;
     private readonly ILogHash _logHash;
     private readonly IEventQueue _eventQueue;
+    private readonly IConfiguration _configuration;
+    private readonly ILogManager _logManager;
 
     /// <summary>
     /// Initializes a new instance of the QuickCache class with default dependencies.
@@ -27,23 +30,40 @@ public class QuickCache : ICache
         this._logPosition = new LogPosition();
         this._logHash = new LogHash(new EventQueue());
         this._eventQueue = new EventQueue();
+
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true);
+
+        _configuration = builder.Build();
     }
 
     /// <summary>
     /// Initializes a new instance of the QuickCache class with specified dependencies.
     /// </summary>
-    internal QuickCache(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue)
+    internal QuickCache(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue, ILogManager logManager, IConfiguration configuration)
     {
         this._log = log;
         this._logPosition = logPosition;
         this._logHash = logHash;
         this._eventQueue = eventQueue;
+        this._configuration = configuration;
+        this._logManager = logManager;
+
+        var logThresholdStr = configuration.GetSection("quick-cache")["log-threshold"];
+        var exists = int.TryParse(logThresholdStr, out int logThreshold);
+
+        if (exists)
+        {
+            this._logManager.LogThreshHold = logThreshold;
+        }
+
     }
 
     /// <summary>
     /// Retrieves the singleton instance of QuickCache, creating it if necessary.
     /// </summary>
-    internal static QuickCache GetInstance(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue)
+    internal static QuickCache GetInstance(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue, ILogManager logManager, IConfiguration configuration)
     {
         if (_instance == null)
         {
@@ -51,7 +71,7 @@ public class QuickCache : ICache
             {
                 if (_instance == null)
                 {
-                    _instance = new QuickCache(log, logPosition, logHash, eventQueue);
+                    _instance = new QuickCache(log, logPosition, logHash, eventQueue, logManager, configuration);
                 }
             }
         }
