@@ -15,7 +15,16 @@ Add Quick Cache to your project using NuGet:
 ### Installation
 
 ```powershell
-...
+dotnet add package TeamHitori.QuickCache
+```
+
+### Configuration appsettings.json
+```json
+{
+  "quick-cache": {
+    "log-threshold": 99999
+  },
+}
 ```
 
 ### Usage
@@ -29,22 +38,14 @@ var cache = new QuickCache();
 ```csharp
 cache.Set("myKey", new MyObject());
 
-// short hand
-cache["myKey"] = new Object();
 ```
 
 #### Retrieving Items from Cache
 ```csharp
-if (cache.Get("myKey", out MyObject value))
+var value = cache.Get<MyObject>("myKey");
+if (value != null)
 {
     // Use value
-}
-
-// short hand
-var res = cache["myKey"];
-if(res.HasValue)
-{
-  // use value
 }
 ```
 
@@ -55,7 +56,7 @@ cache.Delete("myKey");
 
 #### Observing Cache Events
 ```csharp
-cache.Observe().Subscribe(event =>
+cache.Observeable.Subscribe(event =>
 {
     Console.WriteLine($"Event Type: {event.EventType}, Key: {event.Key}");
 });
