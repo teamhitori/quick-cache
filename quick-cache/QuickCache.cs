@@ -1,27 +1,49 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using TeamHitori.QuickCache;
-using TeamHitori.QuickCache.Interfaces;
+﻿using System.Reactive.Linq;
 
-
+/// <summary>
+/// Represents an object cache that stores values associated with unique keys. in a thread-safe manner.
+/// The cache can be observed for events related to cache entry removal.
+/// </summary>
 public class QuickCache : ICache
 {
+    // Holds the singleton instance of QuickCache.
+    private static QuickCache? _instance = null;
+
+    // Provides thread-safe access to the singleton instance.
     private static readonly object _lock = new object();
+
+    // Dependencies for managing cache entries.
     private readonly ILog _log;
     private readonly ILogPosition _logPosition;
     private readonly ILogHash _logHash;
-    private static QuickCache _instance = null;
-    public static QuickCache Instance { get; set; }
+    private readonly IEventQueue _eventQueue;
 
-    internal QuickCache(ILog log, ILogPosition logPosition, ILogHash logHash)
+    /// <summary>
+    /// Initializes a new instance of the QuickCache class with default dependencies.
+    /// </summary>
+    internal QuickCache()
+    {
+        this._log = new Log();
+        this._logPosition = new LogPosition();
+        this._logHash = new LogHash(new EventQueue());
+        this._eventQueue = new EventQueue();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the QuickCache class with specified dependencies.
+    /// </summary>
+    internal QuickCache(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue)
     {
         this._log = log;
         this._logPosition = logPosition;
         this._logHash = logHash;
+        this._eventQueue = eventQueue;
     }
 
-    internal static QuickCache GetInstance(ILog log, ILogPosition logPosition, ILogHash logHash)
+    /// <summary>
+    /// Retrieves the singleton instance of QuickCache, creating it if necessary.
+    /// </summary>
+    internal static QuickCache GetInstance(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue)
     {
         if (_instance == null)
         {
@@ -29,13 +51,16 @@ public class QuickCache : ICache
             {
                 if (_instance == null)
                 {
-                    _instance = new QuickCache(log, logPosition, logHash);
+                    _instance = new QuickCache(log, logPosition, logHash, eventQueue);
                 }
             }
         }
         return _instance;
     }
 
+    /// <summary>
+    /// Retrieves the singleton instance of QuickCache with default dependencies.
+    /// </summary>
     public static QuickCache GetInstance()
     {
         if (_instance == null)
@@ -44,13 +69,16 @@ public class QuickCache : ICache
             {
                 if (_instance == null)
                 {
-                    _instance = new QuickCache(new Log(), new LogPosition(), new LogHash());
+                    _instance = new QuickCache();
                 }
             }
         }
         return _instance;
     }
 
+    /// <summary>
+    /// Adds a value to the cache with the specified key.
+    /// </summary>
     public bool Set<T>(string key, T value, bool force = false) where T : struct
     {
         var newLogPosition = this._logPosition.GetNewPosition();
@@ -63,8 +91,12 @@ public class QuickCache : ICache
 
         var currentPosition = this._logHash.GetLogPosition(key);
 
-        return currentPosition.Value == newLogPosition.Value;
+        return currentPosition != null && currentPosition.Value == newLogPosition.Value;
     }
+
+    /// <summary>
+    /// Retrieves a value from the cache based on the specified key.
+    /// </summary>
     public Nullable<T> Get<T>(string key) where T : struct
     {
         var logPosition = this._logHash.GetLogPosition(key);
@@ -73,14 +105,24 @@ public class QuickCache : ICache
         return this._log.GetValue<T>(logPosition.Value);
 
     }
+
+    /// <summary>
+    /// Deletes the value associated with the specified key from the cache.
+    /// </summary>
     public bool Delete(string key)
     {
         this._logHash.RemoveKey(key);
 
         return true;
     }
+
+    /// <summary>
+    /// Subscribes to and filters events related to cache entry removal.
+    /// </summary>
     public IObservable<Event> Observe()
     {
-        return null;
+        return this._eventQueue
+            .Observe()
+            .Where(e => e.EventType == EventType.Remove);
     }
 }
