@@ -54,19 +54,21 @@ internal class LogHash : ILogHash
     /// Removes a key and its associated log position from the hash and raises a 'Remove' event.
     /// </summary>
     /// <param name="key">The key to be removed from the hash.</param>
-    public void RemoveKey(string key)
+    public void RemoveKey(string key, bool createEvent)
     {
         this._hash.TryRemove(key, out ulong value);
-        this._eventQueue.RaiseEvent(EventType.Remove, key);
+
+        if(createEvent)
+            this._eventQueue.RaiseEvent(EventType.Remove, key);
     }
 
     /// <summary>
-    /// Retrieves all log positions currently stored in the hash.
+    /// Retrieves all log keys and positions currently stored in the hash.
     /// </summary>
-    /// <returns>An array of all log positions in the hash.</returns>
-    public ulong[] GetAllReferences()
+    /// <returns>An array of all log keys and positions in the hash.</returns>
+    public KeyValuePair<string, ulong>[] GetAllReferences()
     {
-        return this._hash.Values.ToArray();
+        return this._hash.ToArray();
     }
 }
 

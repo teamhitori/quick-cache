@@ -17,9 +17,15 @@ public class QuickCache : ICache
     private readonly ILog _log;
     private readonly ILogPosition _logPosition;
     private readonly ILogHash _logHash;
-    private readonly IEventQueue _eventQueue;
+    private readonly IEventQueue _internalEventQueue;
+    private readonly IEventQueue _externalEventQueue;
     private readonly IConfiguration _configuration;
     private readonly ILogManager _logManager;
+
+    /// <summary>
+    /// Subscribes to and filters events related to cache entry removal.
+    /// </summary>
+    public IObservable<Event> Observable => this._externalEventQueue.Observe();
 
     /// <summary>
     /// Initializes a new instance of the QuickCache class with default dependencies.
@@ -29,7 +35,8 @@ public class QuickCache : ICache
         this._log = new Log();
         this._logPosition = new LogPosition();
         this._logHash = new LogHash(new EventQueue());
-        this._eventQueue = new EventQueue();
+        this._internalEventQueue = new EventQueue();
+        this._externalEventQueue = new EventQueue();
 
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -41,12 +48,13 @@ public class QuickCache : ICache
     /// <summary>
     /// Initializes a new instance of the QuickCache class with specified dependencies.
     /// </summary>
-    internal QuickCache(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue, ILogManager logManager, IConfiguration configuration)
+    internal QuickCache(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue internalEventQueue, IEventQueue externalEventQueue, ILogManager logManager, IConfiguration configuration)
     {
         this._log = log;
         this._logPosition = logPosition;
         this._logHash = logHash;
-        this._eventQueue = eventQueue;
+        this._internalEventQueue = internalEventQueue;
+        this._externalEventQueue = externalEventQueue;
         this._configuration = configuration;
         this._logManager = logManager;
 
@@ -58,24 +66,6 @@ public class QuickCache : ICache
             this._logManager.LogThreshHold = logThreshold;
         }
 
-    }
-
-    /// <summary>
-    /// Retrieves the singleton instance of QuickCache, creating it if necessary.
-    /// </summary>
-    internal static QuickCache GetInstance(ILog log, ILogPosition logPosition, ILogHash logHash, IEventQueue eventQueue, ILogManager logManager, IConfiguration configuration)
-    {
-        if (_instance == null)
-        {
-            lock (_lock)
-            {
-                if (_instance == null)
-                {
-                    _instance = new QuickCache(log, logPosition, logHash, eventQueue, logManager, configuration);
-                }
-            }
-        }
-        return _instance;
     }
 
     /// <summary>
@@ -131,18 +121,8 @@ public class QuickCache : ICache
     /// </summary>
     public bool Delete(string key)
     {
-        this._logHash.RemoveKey(key);
+        this._logHash.RemoveKey(key, true);
 
         return true;
-    }
-
-    /// <summary>
-    /// Subscribes to and filters events related to cache entry removal.
-    /// </summary>
-    public IObservable<Event> Observe()
-    {
-        return this._eventQueue
-            .Observe()
-            .Where(e => e.EventType == EventType.Remove);
     }
 }

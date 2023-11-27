@@ -46,7 +46,7 @@ public class LogHashTest
         var logHash = new LogHash(mockEventQueue.Object);
         string key = "testKey";
         logHash.Set(key, 123);
-        logHash.RemoveKey(key);
+        logHash.RemoveKey(key, true);
 
         // Act
         var position = logHash.GetLogPosition(key);

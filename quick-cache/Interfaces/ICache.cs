@@ -18,7 +18,7 @@ public interface ICache
     /// <summary>
     /// Subscribes to and filters events related to cache entry removal.
     /// </summary>
-    IObservable<Event> Observe();
+    IObservable<Event> Observable { get; }
 
     /// <summary>
     /// Adds a value to the cache with the specified key.

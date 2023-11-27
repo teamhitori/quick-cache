@@ -4,10 +4,10 @@
 internal interface ILogHash
 {
     /// <summary>
-    /// Retrieves all log positions currently stored in the hash.
+    /// Retrieves all log keys and positions currently stored in the hash.
     /// </summary>
-    /// <returns>An array of all log positions in the hash.</returns>
-    ulong[] GetAllReferences();
+    /// <returns>An array of all keys and log positions in the hash.</returns>
+    KeyValuePair<string, ulong>[] GetAllReferences();
 
     /// <summary>
     /// Retrieves the log position associated with a given key and raises a 'Touch' event.
@@ -20,7 +20,7 @@ internal interface ILogHash
     /// Removes a key and its associated log position from the hash and raises a 'Remove' event.
     /// </summary>
     /// <param name="key">The key to be removed from the hash.</param>
-    void RemoveKey(string key);
+    void RemoveKey(string key, bool createEvent);
 
     /// <summary>
     /// Adds a key-log position mapping to the hash and raises an 'Add' event.
